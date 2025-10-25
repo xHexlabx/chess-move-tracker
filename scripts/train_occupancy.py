@@ -22,7 +22,7 @@ def train():
     
     # --- 1. ตั้งค่า ---
     DATA_DIR = "data/processed/occupancy_dataset"
-    OUTPUT_CHECKPOINT = "/src/models/occupancy/models/occupancy_model_best.ckpt"
+    OUTPUT_CHECKPOINT = "models/occupancy/occupancy_model_best.ckpt"
     
     # ตรวจสอบว่ามีข้อมูลเทรน
     if not os.path.exists(os.path.join(DATA_DIR, "train", "0_empty")):
@@ -41,7 +41,7 @@ def train():
     checkpoint_callback = ModelCheckpoint(
         monitor="val_acc",
         mode="max",
-        dirpath="./src/models/occupancy/models",
+        dirpath="models/occupancy",
         filename="occupancy_model_best",
         save_top_k=1
     )
@@ -56,7 +56,7 @@ def train():
     trainer = pl.Trainer(
         max_epochs=10,
         accelerator="auto", 
-        default_root_dir="./src/models/occupancy/models/checkpoints/",
+        default_root_dir="models/occupancy/checkpoints/",
         callbacks=[checkpoint_callback, early_stop_callback]
     )
 
