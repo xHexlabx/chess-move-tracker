@@ -15,7 +15,7 @@ import shutil
 # เพิ่ม src/ เข้าไปใน path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from src.models.occupancy_lit_model import OccupancyLitModel
+from src.models.occupancy.occupancy_lit_model import OccupancyLitModel
 from src.data.occupancy_datamodule import OccupancyDataModule
 
 def train():
