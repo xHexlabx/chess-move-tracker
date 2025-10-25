@@ -253,7 +253,6 @@ data/raw/videos/
 # test_image_4.jpg
 # test_image_5.jpg
 
-models/
 *.pth
 *.pt
 *.onnx
