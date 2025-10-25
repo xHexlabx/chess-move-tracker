@@ -22,7 +22,7 @@ def train():
     
     # --- 1. ตั้งค่า ---
     DATA_DIR = "data/processed/occupancy_dataset"
-    OUTPUT_CHECKPOINT = "models/occupancy/models/occupancy_model_best.ckpt"
+    OUTPUT_CHECKPOINT = "/src/models/occupancy/models/occupancy_model_best.ckpt"
     
     # ตรวจสอบว่ามีข้อมูลเทรน
     if not os.path.exists(os.path.join(DATA_DIR, "train", "0_empty")):
@@ -41,7 +41,7 @@ def train():
     checkpoint_callback = ModelCheckpoint(
         monitor="val_acc",
         mode="max",
-        dirpath="models/occupancy/models",
+        dirpath="./src/models/occupancy/models",
         filename="occupancy_model_best",
         save_top_k=1
     )
@@ -56,7 +56,7 @@ def train():
     trainer = pl.Trainer(
         max_epochs=10,
         accelerator="auto", 
-        default_root_dir="models/checkpoints/",
+        default_root_dir="./src/models/occupancy/models/checkpoints/",
         callbacks=[checkpoint_callback, early_stop_callback]
     )
 
@@ -70,7 +70,6 @@ def train():
     # trainer.save_checkpoint(OUTPUT_CHECKPOINT) # PL 2.0+ จะบันทึกอันที่ดีที่สุดให้อัตโนมัติ
     # เราแค่คัดลอกไฟล์ที่ดีที่สุดมา
     best_path = checkpoint_callback.best_model_path
-    shutil.copy(best_path, OUTPUT_CHECKPOINT)
     
     print("\nTraining script finished.")
     print(f"คุณสามารถใช้โมเดลได้ที่: {OUTPUT_CHECKPOINT}")
