@@ -5,7 +5,7 @@ import torchvision.transforms as transforms
 from src.models.occupancy.occupancy_lit_model import OccupancyLitModel  # <-- Import โมเดลของคุณ
 
 # --- 1. กำหนดค่าพื้นฐาน ---
-MODEL_PATH = "./models/occupancy/models/occupancy_model_best.ckpt"
+MODEL_PATH = "./models/occupancy/occupancy_model_best.ckpt"
 CLASS_NAMES = ['0_empty', '1_occupied']
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
