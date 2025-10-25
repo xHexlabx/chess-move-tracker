@@ -17,7 +17,7 @@ from src.core.exceptions import BoardNotFoundException
 
 def main():
     # --- 1. ตั้งค่า ---
-    IMAGE_PATH = "data/raw/images/single_test/test_image_1.jpg"
+    IMAGE_PATH = "data/raw/images/single_test/test_image_4.jpg"
     
     # Path ไปยังไฟล์ checkpoint ของ Lightning
     MODEL_CHECKPOINT_PATH = "models/occupancy/occupancy_model.ckpt" 

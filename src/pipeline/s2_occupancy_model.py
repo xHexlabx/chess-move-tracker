@@ -12,8 +12,9 @@ import torchvision.transforms as T
 from typing import List
 from src.core.typing import SquareImage, OccupancyGrid, ImageRGB
 
-# Import LightningModule ของเรา
-from src.models.occupancy_lit_model import OccupancyLitModel
+# [FIX]
+# Import LightningModule ของเราจาก sub-folder 'occupancy'
+from src.models.occupancy.occupancy_lit_model import OccupancyLitModel
 
 class OccupancyModel:
     """
@@ -44,7 +45,7 @@ class OccupancyModel:
                 print("!!! Switching to DUMMY model.")
                 self.use_dummy = True
 
-        # [cite_start]Transform มาตรฐาน (Paper ใช้ 100x100) [cite: 322]
+        # Transform มาตรฐาน (Paper ใช้ 100x100)
         self.transform = T.Compose([
             T.ToTensor(),
             T.Resize((100, 100), antialias=True), 
