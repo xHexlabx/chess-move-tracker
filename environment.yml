@@ -13,7 +13,8 @@ dependencies:
   - scikit-learn          # สำหรับ Clustering (DBSCAN, Agglomerative)
   - pandas                # สำหรับ evaluation
   - matplotlib            # สำหรับ visualization
-
+  - pytorch-lightning  # [NEW]
+  - torchmetrics
   # Pip Packages
   - pip:
       - opencv-python         # สำหรับ Image Processing (Canny, Hough, Warp)
