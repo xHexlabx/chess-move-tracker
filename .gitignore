@@ -250,7 +250,7 @@ MANIFEST
 data/processed/
 data/raw/videos/
 # data/raw/images/
-
+models/
 *.pth
 *.pt
 *.onnx
