@@ -1,0 +1,11 @@
+torch
+torchvision
+numpy
+scikit-learn
+pandas
+matplotlib
+pytorch-lightning
+torchmetrics
+opencv-python
+python-chess
+kaggle
