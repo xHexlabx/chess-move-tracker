@@ -1,0 +1,21 @@
+name: chess-move-tracker
+channels:
+  - pytorch
+  - conda-forge  # <-- แนะนำให้เพิ่ม เพื่อความเสถียรและครบถ้วนของ package
+  - defaults
+dependencies:
+  # Conda Packages
+  - python=3.10
+  - pip
+  - numpy
+  - pytorch               # สำหรับรันโมเดล CNN
+  - torchvision
+  - scikit-learn          # สำหรับ Clustering (DBSCAN, Agglomerative)
+  - pandas                # สำหรับ evaluation
+  - matplotlib            # สำหรับ visualization
+
+  # Pip Packages
+  - pip:
+      - opencv-python         # สำหรับ Image Processing (Canny, Hough, Warp)
+      - python-chess          # **สำคัญมาก: สำหรับจัดการ FEN และ PGN**
+      - kaggle                
