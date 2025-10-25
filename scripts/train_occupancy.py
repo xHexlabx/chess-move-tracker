@@ -1,10 +1,8 @@
 """
 สคริปต์สำหรับ "เทรน" โมเดล Occupancy (State 2)
 
-[UPDATED]
-- แก้ไข [TODO]
-- Import และใช้งาน OccupancyDataModule
-- [FIX] แก้ไขการทับซ้อนของไฟล์:
+[FIX]
+- แก้ไขการทับซ้อนของไฟล์:
   - ให้ ModelCheckpoint บันทึกลงใน default_root_dir (log dir)
   - คัดลอก (copy) ไฟล์ที่ดีที่สุดไปยัง 'OUTPUT_CHECKPOINT' ตอนจบ
 """
@@ -26,7 +24,6 @@ def train():
     # --- 1. ตั้งค่า ---
     DATA_DIR = "data/processed/occupancy_dataset"
     
-    # [FIX] แยก "ที่เก็บ Log" กับ "ไฟล์โมเดลสุดท้าย" ออกจากกัน
     # 1. ที่เก็บ Artifacts ระหว่างเทรน (logs, checkpoints ทั้งหมด)
     CHECKPOINT_DIR = "models/occupancy/checkpoints/"
     # 2. ไฟล์โมเดล "ที่ดีที่สุด" สำหรับนำไปใช้งาน (Inference)
@@ -47,12 +44,12 @@ def train():
     # --- 4. สร้าง Callbacks (ตัวช่วย) ---
     
     # [FIX] ให้ Checkpoint บันทึกลงใน CHECKPOINT_DIR
-    # (โดยการไม่ระบุ dirpath)
+    # โดยการไม่ระบุ dirpath และใช้ filename แบบไดนามิก
     checkpoint_callback = ModelCheckpoint(
         monitor="val_acc",
         mode="max",
         # dirpath=None (จะใช้ default_root_dir ของ Trainer)
-        filename="occupancy-best-{epoch:02d}-{val_acc:.3f}", # ใช้ชื่อไฟล์แบบไดนามิก
+        filename="occupancy-best-{epoch:02d}-{val_acc:.3f}", 
         save_top_k=1
     )
     
@@ -80,10 +77,14 @@ def train():
     
     # [FIX] เพิ่มการคัดลอกไฟล์
     try:
-        # ตรวจสอบว่ามีไฟล์ที่ดีที่สุดจริง
         if os.path.exists(checkpoint_callback.best_model_path):
-            shutil.copy(checkpoint_callback.best_model_path, OUTPUT_CHECKPOINT)
-            print(f"✅ Successfully copied best model to: {OUTPUT_CHECKPOINT}")
+            # ตรวจสอบว่า Source และ Dest ไม่ใช่ไฟล์เดียวกัน (เผื่อกรณีรันซ้ำ)
+            if os.path.abspath(checkpoint_callback.best_model_path) != os.path.abspath(OUTPUT_CHECKPOINT):
+                shutil.copy(checkpoint_callback.best_model_path, OUTPUT_CHECKPOINT)
+                print(f"✅ Successfully copied best model to: {OUTPUT_CHECKPOINT}")
+            else:
+                print(f"โมเดลที่ดีที่สุดอยู่ที่ {OUTPUT_CHECKPOINT} อยู่แล้ว (ไม่ต้องคัดลอก)")
+                
             print(f"คุณสามารถใช้โมเดลนี้ได้ใน visualize_state2.py")
         else:
             print(f"!!! Error: Best model path not found at {checkpoint_callback.best_model_path}")
