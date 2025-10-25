@@ -24,6 +24,8 @@ def main():
         "test_image_1.jpg",
         "test_image_2.jpg",
         "test_image_3.jpg"
+        "test_image_4.jpg"
+        "test_image_5.jpg"
     ]
     
     image_paths = []
