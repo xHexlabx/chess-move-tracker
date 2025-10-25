@@ -7,11 +7,15 @@ import numpy as np
 # ประเภทของภาพ
 ImageBGR = np.ndarray         # ภาพ OpenCV (channels BGR)
 ImageGreyscale = np.ndarray   # ภาพ 1 channel
+ImageRGB = np.ndarray         # [NEW] ภาพสำหรับ PyTorch (channels RGB)
 WarpedImage = np.ndarray      # ภาพกระดานที่ถูก warp แล้ว
-HomographyMatrix = np.ndarray # 3x3 matrix จาก cv2.findHomography
+HomographyMatrix = np.ndarray # 3x3 matrix
+SquareImage = np.ndarray      # [NEW] ภาพ 1 ช่องที่ถูกตัดออกมา
 
 # ประเภทของข้อมูลประมวลผล
-# (x1, y1, x2, y2)
 LineSegment = Tuple[int, int, int, int] 
 Lines = List[LineSegment]
 IntersectionPoint = Tuple[int, int]
+
+# [NEW] ประเภทของผลลัพธ์
+OccupancyGrid = List[bool]    # List 64 ค่า (True=Occupied, False=Empty)

@@ -20,3 +20,4 @@ dependencies:
       - opencv-python         # สำหรับ Image Processing (Canny, Hough, Warp)
       - python-chess          # **สำคัญมาก: สำหรับจัดการ FEN และ PGN**
       - kaggle                
+      - shutils
