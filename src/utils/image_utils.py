@@ -83,3 +83,50 @@ def crop_squares_from_warped(warped_image: WarpedImage, context_ratio: float) ->
             squares.append(square_with_context)
             
     return squares
+
+def crop_piece_squares(warped_image: WarpedImage) -> List[SquareImage]:
+    """
+    [NEW] ตัดภาพ WarpedImage ออกเป็น 64 ช่องเล็กสำหรับ "Piece Classification"
+
+    ตาม Paper[cite: 218]:
+    "Instead, we employ a simple heuristic that extends the height of bounding
+     boxes for pieces further back on the board"
+    
+    :param warped_image: ภาพกระดานที่ Warp แล้ว
+    :return: List 64 ภาพ (SquareImage)
+    """
+    height, width = warped_image.shape[:2]
+    sq_size = height // 8
+    
+    squares = []
+    
+    # Heuristic: แถวบนๆ (แถว 0-3) จะถูกขยาย BBox ให้สูงขึ้น
+    # เพื่อให้เห็น King/Queen/Pawn ที่อยู่ไกลๆ ได้เต็มตัว
+    
+    for r in range(8): # row
+        for c in range(8): # col
+            
+            # 1. หาพิกัดช่องแบบปกติ
+            y1, y2 = r * sq_size, (r + 1) * sq_size
+            x1, x2 = c * sq_size, (c + 1) * sq_size
+            
+            # 2. [Heuristic] ขยายความสูง (y1)
+            if r <= 3: 
+                # ถ้าเป็นแถวบนๆ (แถว 0-3, แถวไกล)
+                # ขยาย BBox ขึ้นไป 1 ช่อง (หรือตามสัดส่วน)
+                y1_pad = max(0, y1 - sq_size)
+                y2_pad = y2
+            else:
+                # แถวล่างๆ (แถว 4-7, แถวใกล้)
+                # ขยายขึ้นเล็กน้อย หรือไม่ขยายเลย
+                y1_pad = max(0, y1 - int(sq_size * 0.2))
+                y2_pad = y2
+            
+            # 3. Crop (ขยายขอบซ้ายขวาเล็กน้อย)
+            x1_pad = max(0, x1 - int(sq_size * 0.1))
+            x2_pad = min(width, x2 + int(sq_size * 0.1))
+            
+            square_crop = warped_image[y1_pad:y2_pad, x1_pad:x2_pad]
+            squares.append(square_crop)
+            
+    return squares
