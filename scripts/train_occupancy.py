@@ -9,6 +9,7 @@ import pytorch_lightning as pl
 from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
 import sys
 import os
+import shutil
 
 # เพิ่ม src/ เข้าไปใน path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -21,7 +22,7 @@ def train():
     
     # --- 1. ตั้งค่า ---
     DATA_DIR = "data/processed/occupancy_dataset"
-    OUTPUT_CHECKPOINT = "models/occupancy/occupancy_model_best.ckpt"
+    OUTPUT_CHECKPOINT = "models/occupancy/models/occupancy_model_best.ckpt"
     
     # ตรวจสอบว่ามีข้อมูลเทรน
     if not os.path.exists(os.path.join(DATA_DIR, "train", "0_empty")):
@@ -40,8 +41,8 @@ def train():
     checkpoint_callback = ModelCheckpoint(
         monitor="val_acc",
         mode="max",
-        dirpath="models/checkpoints/",
-        filename="occupancy-best-{epoch:02d}-{val_acc:.3f}",
+        dirpath="models/occupancy/models",
+        filename="occupancy_model_best",
         save_top_k=1
     )
     # หยุดเทรน ถ้า val_loss ไม่ลดลง 3 รอบ
