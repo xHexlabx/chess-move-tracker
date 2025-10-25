@@ -1,6 +1,3 @@
------
-
-````md
 # Chess Move Tracker Project
 
 โปรเจกต์นี้มีเป้าหมายเพื่อสร้าง Pipeline สำหรับติดตามการเดินหมากรุกจากวิดีโอ และแปลงเป็น PGN โดยใช้ Computer Vision และ Deep Learning (PyTorch Lightning)
@@ -126,6 +123,3 @@ python scripts/train_occupancy.py
   * **คืนค่า:** `PieceGrid` (List 64 strings: 'wP', 'bN', 'empty', ...)
 
 <!-- end list -->
-
-```
-```
