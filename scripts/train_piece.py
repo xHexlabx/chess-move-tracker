@@ -3,7 +3,8 @@
 
 [UPDATED]
 - ใช้ PieceDataModule ที่โหลด train/val/test แยกกัน
-- เพิ่มการเรียก trainer.test() (ถ้ามี Test Set)
+- [CHANGED] เปลี่ยนจากการเรียก trainer.test() เป็น trainer.validate()
+  เพื่อใช้ Validation Set ในการประเมินผลสุดท้าย (แทน Test Set)
 """
 import pytorch_lightning as pl
 from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
@@ -26,13 +27,14 @@ def train():
     OUTPUT_CHECKPOINT = "models/piece/piece_model_best.ckpt"
 
     # ตรวจสอบว่ามีข้อมูลเทรน
+    # (เปลี่ยนเป็นเช็คโฟลเดอร์ train แทน class ย่อย เพื่อความแน่นอน)
     if not os.path.exists(os.path.join(DATA_DIR, "train")):
         print(f"!!! ข้อผิดพลาด: ไม่พบโฟลเดอร์ {DATA_DIR}/train")
         print("โปรดรัน 'scripts/prepare_piece_data.py' ก่อน")
         return
 
     # --- 2. สร้าง DataModule ---
-    datamodule = PieceDataModule(data_dir=DATA_DIR, batch_size=256)
+    datamodule = PieceDataModule(data_dir=DATA_DIR, batch_size=32)
     # datamodule.setup() # Called automatically by trainer
 
     # --- 3. สร้างโมเดล ---
@@ -66,13 +68,12 @@ def train():
     trainer.fit(model, datamodule=datamodule)
     print("--- Training Complete ---")
 
-    # --- 7. [NEW] ทดสอบกับ Test Set (ถ้ามี) ---
-    if os.path.exists(os.path.join(DATA_DIR, "test")):
-        print("\n--- Starting Testing (Piece Model) ---")
-        trainer.test(datamodule=datamodule, ckpt_path="best")
-        print("--- Testing Complete ---")
-    else:
-        print("\nSkipping testing: Test set not found.")
+    # --- 7. [CHANGED] ประเมินผลสุดท้ายด้วย Validation Set ---
+    print("\n--- Starting Final Evaluation (using Validation Set) ---")
+    # โหลดโมเดลที่ดีที่สุดและรัน validation loop
+    # ผลลัพธ์จะแสดง val_loss และ val_acc สุดท้าย
+    trainer.validate(datamodule=datamodule, ckpt_path="best") # <--- ใช้ .validate() ที่นี่
+    print("--- Final Evaluation Complete ---")
 
 
     # --- 8. คัดลอกโมเดลที่ดีที่สุด ---

@@ -2,11 +2,8 @@
 [UPDATED]
 สคริปต์สำหรับ "เตรียมข้อมูล Few-Shot อัตโนมัติ" สำหรับ State 3 (Piece)
 
-[NEW LOGIC]:
-- ลบการเช็ค TRAIN_PREFIXES ออก
-- วน Loop อ่านภาพจาก data/raw/images/[train/val/test]/
-- บันทึก Crop ลงใน data/processed/piece/[train/val/test]/
-- "Auto-label" ภาพทั้งหมดโดยใช้กฎ 'starting position' (13 คลาส)
+[NEW] เพิ่ม Horizontal Flipping สำหรับหมากฝั่งซ้าย
+[NEW] เพิ่ม Resize ภาพ Crop ให้ใหญ่ขึ้นก่อนบันทึก
 """
 import cv2
 import sys
@@ -28,6 +25,7 @@ RAW_IMAGE_DIR = "data/raw/images/"
 OUTPUT_DATA_DIR = "data/processed/piece"
 DATA_SPLITS = ["train", "val", "test"] # โฟลเดอร์ที่จะประมวลผล
 CLASSES = PieceLitModel.CLASSES # ['b_Bishop', ..., 'empty']
+TARGET_CROP_SIZE = (224, 224) # (Width, Height) ขนาดใหม่ของภาพ Crop ที่จะบันทึก
 # -------------------------
 
 def main():
@@ -75,30 +73,53 @@ def main():
                 # 4. ตัด 64 ช่อง (ด้วยฟังก์ชัน Crop ของ State 3)
                 squares = image_utils.crop_piece_squares(warped_board)
 
-                # 5. "ติดป้าย" (Label) อัตโนมัติ และบันทึก
+                # 5. "ติดป้าย" (Label) อัตโนมัติ, Flip, Resize และบันทึก
                 for i, sq_img in enumerate(squares):
                     # หา Label จาก Map คำตอบ
                     label = PIECE_MAP[i] # e.g., 'b_Rook', 'empty'
 
+                    # --- Horizontal Flipping ---
+                    col = i % 8 # หาคอลัมน์ (0-7)
+                    if col <= 3: # ถ้าเป็นคอลัมน์ a, b, c, d (ฝั่งซ้าย)
+                        flipped_sq_img = cv2.flip(sq_img, 1) # กลับภาพแนวนอน
+                        flip_suffix = "_flip"
+                    else:
+                        flipped_sq_img = sq_img
+                        flip_suffix = ""
+                    # -------------------------
+
+                    # --- [NEW] Resize Image ---
+                    # ใช้ INTER_LINEAR ซึ่งเป็นค่า default ที่ดีสำหรับการย่อ/ขยายทั่วไป
+                    resized_sq_img = cv2.resize(flipped_sq_img, TARGET_CROP_SIZE, interpolation=cv2.INTER_LINEAR)
+                    # -------------------------
+
+
                     # หา Path ที่จะบันทึก
                     save_dir = os.path.join(current_out_dir, label)
 
-                    filename = f"{split}_{split_img_counter:04d}_{img_name.split('.')[0]}_sq{i}.jpg"
+                    filename = f"{split}_{split_img_counter:04d}_{img_name.split('.')[0]}_sq{i}{flip_suffix}.jpg"
                     save_path = os.path.join(save_dir, filename)
-                    cv2.imwrite(save_path, sq_img)
+
+                    # ตรวจสอบว่ามี directory ก่อนบันทึก
+                    if not os.path.exists(save_dir):
+                         print(f"      Warning: Directory {save_dir} not found, skipping save for {filename}")
+                         continue
+
+                    cv2.imwrite(save_path, resized_sq_img) # บันทึกภาพที่ Resize แล้ว
                     split_img_counter += 1
 
-                print(f"   ✅ สำเร็จ: {img_name} -> 64 ช่อง")
+                print(f"   ✅ สำเร็จ: {img_name} -> 64 ช่อง (ขนาด {TARGET_CROP_SIZE[0]}x{TARGET_CROP_SIZE[1]})")
 
             except BoardNotFoundException as e:
                 print(f"   ❌ ล้มเหลว (State 1): {img_name} -> {e}")
             except Exception as e:
                  print(f"   ❌ ล้มเหลว (อื่นๆ): {img_name} -> {e}")
 
+
         total_processed_images += split_img_counter
 
     print("-" * 30)
-    print(f"บันทึกภาพ Piece ทั้งหมด {total_processed_images} ภาพ เรียบร้อย")
+    print(f"บันทึกภาพ Piece ทั้งหมด {total_processed_images} ภาพ เรียบร้อย (ขนาด {TARGET_CROP_SIZE[0]}x{TARGET_CROP_SIZE[1]})")
     print("ตอนนี้คุณพร้อมที่จะรัน 'scripts/train_piece.py' แล้ว!")
 
 if __name__ == "__main__":
