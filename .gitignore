@@ -248,10 +248,7 @@ MANIFEST
 
 # Data / Models (ไม่ควรเก็บไฟล์ใหญ่ๆ ใน Git)
 data/processed/
-data/raw/videos/
-# data/raw/images/
-# test_image_4.jpg
-# test_image_5.jpg
+data/raw
 
 *.pth
 *.pt
