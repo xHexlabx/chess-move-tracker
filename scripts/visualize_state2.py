@@ -23,7 +23,7 @@ from src.core.exceptions import BoardNotFoundException
 
 def main():
     # --- 1. ตั้งค่า ---
-    IMAGE_DIR = "data/raw/images/single_test/test/"
+    IMAGE_DIR = "data/raw/images/test/"
     MODEL_CHECKPOINT_PATH = "models/occupancy/occupancy_model_best.ckpt" 
     
     # [NEW] รายการภาพทั้งหมดที่จะทดสอบ
