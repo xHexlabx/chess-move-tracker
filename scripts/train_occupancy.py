@@ -3,7 +3,8 @@
 
 [UPDATED]
 - ใช้ OccupancyDataModule ที่โหลด train/val/test แยกกัน
-- เพิ่มการเรียก trainer.test() (ถ้ามี Test Set)
+- [CHANGED] เปลี่ยนจากการเรียก trainer.test() เป็น trainer.validate()
+  เพื่อใช้ Validation Set ในการประเมินผลสุดท้าย (แทน Test Set)
 """
 import pytorch_lightning as pl
 from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
@@ -14,7 +15,7 @@ import shutil
 # เพิ่ม src/ เข้าไปใน path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from src.models.occupancy_lit_model import OccupancyLitModel
+from src.models.occupancy.occupancy_lit_model import OccupancyLitModel
 from src.data.occupancy_datamodule import OccupancyDataModule
 
 def train():
@@ -32,8 +33,8 @@ def train():
         return
 
     # --- 2. สร้าง DataModule ---
-    datamodule = OccupancyDataModule(data_dir=DATA_DIR, batch_size=64)
-    # datamodule.setup() # Setup is called automatically by trainer.fit/test
+    datamodule = OccupancyDataModule(data_dir=DATA_DIR, batch_size=256)
+    # datamodule.setup() # Setup is called automatically by trainer.fit/validate
 
     # --- 3. สร้างโมเดล ---
     model = OccupancyLitModel(learning_rate=1e-4)
@@ -65,14 +66,12 @@ def train():
     trainer.fit(model, datamodule=datamodule)
     print("--- Training Complete ---")
 
-    # --- 7. [NEW] ทดสอบกับ Test Set (ถ้ามี) ---
-    if os.path.exists(os.path.join(DATA_DIR, "test")):
-        print("\n--- Starting Testing ---")
-        # โหลดโมเดลที่ดีที่สุดที่ถูกบันทึกไว้
-        trainer.test(datamodule=datamodule, ckpt_path="best")
-        print("--- Testing Complete ---")
-    else:
-        print("\nSkipping testing: Test set not found.")
+    # --- 7. [CHANGED] ประเมินผลสุดท้ายด้วย Validation Set ---
+    print("\n--- Starting Final Evaluation (using Validation Set) ---")
+    # โหลดโมเดลที่ดีที่สุดที่ถูกบันทึกไว้ และรัน validation loop
+    # ผลลัพธ์จะแสดง val_loss และ val_acc สุดท้าย
+    trainer.validate(datamodule=datamodule, ckpt_path="best") # <--- ใช้ .validate() ที่นี่
+    print("--- Final Evaluation Complete ---")
 
 
     # --- 8. คัดลอกโมเดลที่ดีที่สุดไปใช้งาน ---

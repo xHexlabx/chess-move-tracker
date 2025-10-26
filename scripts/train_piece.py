@@ -32,7 +32,7 @@ def train():
         return
 
     # --- 2. สร้าง DataModule ---
-    datamodule = PieceDataModule(data_dir=DATA_DIR, batch_size=32)
+    datamodule = PieceDataModule(data_dir=DATA_DIR, batch_size=256)
     # datamodule.setup() # Called automatically by trainer
 
     # --- 3. สร้างโมเดล ---
