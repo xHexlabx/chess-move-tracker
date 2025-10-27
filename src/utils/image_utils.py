@@ -84,15 +84,16 @@ def crop_squares_from_warped(warped_image: WarpedImage, context_ratio: float) ->
             
     return squares
 
-def crop_piece_squares(warped_image: WarpedImage) -> List[SquareImage]:
+def crop_piece_squares(warped_image: WarpedImage, padding_ratio: float = 0.3) -> List[SquareImage]:
     """
-    [NEW] ตัดภาพ WarpedImage ออกเป็น 64 ช่องเล็กสำหรับ "Piece Classification"
-
-    ตาม Paper[cite: 218]:
-    "Instead, we employ a simple heuristic that extends the height of bounding
-     boxes for pieces further back on the board"
+    [UPDATED] ตัดภาพ WarpedImage ออกเป็น 64 ช่องเล็กสำหรับ "Piece Classification"
+    
+    [NEW] ใช้ padding_ratio เพื่อเพิ่มขอบรอบด้านเท่าๆ กัน
     
     :param warped_image: ภาพกระดานที่ Warp แล้ว
+    :param padding_ratio: อัตราส่วนขยายขอบรอบด้าน (เช่น 0.3 คือ 30%)
+                          ค่า 0.0 คือไม่ขยายเลย (ได้ช่องพอดี)
+                          ค่า 1.0 คือขยายออกไป 50% ของขนาดช่องในแต่ละด้าน
     :return: List 64 ภาพ (SquareImage)
     """
     height, width = warped_image.shape[:2]
@@ -100,8 +101,9 @@ def crop_piece_squares(warped_image: WarpedImage) -> List[SquareImage]:
     
     squares = []
     
-    # Heuristic: แถวบนๆ (แถว 0-3) จะถูกขยาย BBox ให้สูงขึ้น
-    # เพื่อให้เห็น King/Queen/Pawn ที่อยู่ไกลๆ ได้เต็มตัว
+    # คำนวณขนาด Padding ที่จะเพิ่มในแต่ละด้าน (ซ้าย, ขวา, บน, ล่าง)
+    # เช่น padding_ratio = 0.3 -> padding = int( (600/8) * 0.3 / 2 ) = int(75 * 0.15) = 11
+    padding = int((sq_size * padding_ratio) / 2)
     
     for r in range(8): # row
         for c in range(8): # col
@@ -110,22 +112,13 @@ def crop_piece_squares(warped_image: WarpedImage) -> List[SquareImage]:
             y1, y2 = r * sq_size, (r + 1) * sq_size
             x1, x2 = c * sq_size, (c + 1) * sq_size
             
-            # 2. [Heuristic] ขยายความสูง (y1)
-            if r <= 3: 
-                # ถ้าเป็นแถวบนๆ (แถว 0-3, แถวไกล)
-                # ขยาย BBox ขึ้นไป 1 ช่อง (หรือตามสัดส่วน)
-                y1_pad = max(0, y1 - sq_size)
-                y2_pad = y2
-            else:
-                # แถวล่างๆ (แถว 4-7, แถวใกล้)
-                # ขยายขึ้นเล็กน้อย หรือไม่ขยายเลย
-                y1_pad = max(0, y1 - int(sq_size * 0.2))
-                y2_pad = y2
+            # 2. [NEW] ขยายขอบทั้ง 4 ด้าน
+            y1_pad = max(0, y1 - padding)
+            y2_pad = min(height, y2 + padding)
+            x1_pad = max(0, x1 - padding)
+            x2_pad = min(width, x2 + padding)
             
-            # 3. Crop (ขยายขอบซ้ายขวาเล็กน้อย)
-            x1_pad = max(0, x1 - int(sq_size * 0.1))
-            x2_pad = min(width, x2 + int(sq_size * 0.1))
-            
+            # 3. Crop
             square_crop = warped_image[y1_pad:y2_pad, x1_pad:x2_pad]
             squares.append(square_crop)
             
