@@ -84,7 +84,7 @@ def crop_squares_from_warped(warped_image: WarpedImage, context_ratio: float) ->
             
     return squares
 
-def crop_piece_squares(warped_image: WarpedImage, padding_ratio: float = 0.3) -> List[SquareImage]:
+def crop_piece_squares(warped_image: WarpedImage, padding_ratio: float = 0.7) -> List[SquareImage]:
     """
     [UPDATED] ตัดภาพ WarpedImage ออกเป็น 64 ช่องเล็กสำหรับ "Piece Classification"
     

@@ -19,7 +19,7 @@ from src.utils.fen_utils import PIECE_TO_FEN # Import เพื่อใช้�
 
 def main():
     # --- 1. ตั้งค่า ---
-    IMAGE_DIR = "data/raw/images/single_test/test/"
+    IMAGE_DIR = "data/raw/images/test/"
     IMAGE_NAMES = [
         "test_1.jpg",
         "test_2.jpg",
